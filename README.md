@@ -1,1 +1,0 @@
-# Guided-Portfolios-Platform

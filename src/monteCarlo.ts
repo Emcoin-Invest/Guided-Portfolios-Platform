@@ -1,0 +1,4 @@
+export type Projection={year:number,p50:number,p10:number,p90:number};
+function rng(seed:number){let x=seed>>>0;return()=>{x=(1664525*x+1013904223)>>>0;return x/4294967296}}
+function normal(r:()=>number){let u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+export function project(initial:number,monthly:number,years:number,annualReturn:number,volatility:number,seed=42,paths=1000):Projection[]{const r=rng(seed),out:Projection[]=[];for(let y=1;y<=years;y++){const vals:number[]=[];for(let p=0;p<paths;p++){let v=initial;for(let m=0;m<y*12;m++){const z=normal(r);const rm=annualReturn/12-volatility*volatility/24+volatility/Math.sqrt(12)*z;v=Math.max(0,v*Math.exp(rm)+monthly)}vals.push(v)}vals.sort((a,b)=>a-b);const q=(x:number)=>vals[Math.floor((vals.length-1)*x)];out.push({year:y,p10:q(.1),p50:q(.5),p90:q(.9)})}return out}
