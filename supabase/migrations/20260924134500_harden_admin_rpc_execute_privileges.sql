@@ -1,0 +1,9 @@
+revoke execute on function public.admin_delete_asset(uuid) from anon;
+revoke execute on function public.admin_delete_corporate_action(uuid) from anon;
+revoke execute on function public.admin_delete_portfolio(uuid) from anon;
+revoke execute on function public.admin_record_valuation(uuid,uuid,date,numeric,numeric,numeric,numeric,numeric,numeric,numeric,numeric) from anon;
+revoke execute on function public.admin_set_corporate_action_status(uuid,public.corporate_action_status) from anon;
+revoke execute on function public.admin_upsert_asset(uuid,text,text,text,text,text,text,boolean,jsonb) from anon;
+revoke execute on function public.admin_upsert_corporate_action(uuid,uuid,text,date,date,date,date,numeric,numeric,text,jsonb) from anon;
+revoke execute on function public.admin_upsert_portfolio(uuid,text,text,boolean) from anon;
+revoke execute on function public.admin_upsert_portfolio_version(uuid,uuid,integer,text,numeric,numeric,integer,jsonb) from anon;
