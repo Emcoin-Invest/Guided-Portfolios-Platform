@@ -44,13 +44,21 @@ export async function saveSimulation(payload: { portfolioVersionId:string; initi
   return data;
 }
 
-export async function submitInvestment(payload:{portfolioVersionId:string;amount:number;monthlyContribution:number}) {
+export async function recordInvestmentConsent(portfolioVersionId:string, reason:string) {
   if (!supabase) throw new Error('Supabase is not configured.');
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Authentication required');
-  const { data, error } = await supabase.from('investment_requests').insert({
-    user_id:user.id, portfolio_version_id:payload.portfolioVersionId, amount:payload.amount, monthly_contribution:payload.monthlyContribution
-  }).select().single();
+  const { data, error } = await supabase.rpc('record_investment_consent', { p_version_id: portfolioVersionId, p_reason: reason });
+  if (error) throw error;
+  return data;
+}
+
+export async function submitInvestment(payload:{portfolioVersionId:string;amount:number;monthlyContribution:number;consentId?:string|null}) {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  const { data, error } = await supabase.rpc('submit_investment_request', {
+    p_version_id: payload.portfolioVersionId,
+    p_amount: payload.amount,
+    p_monthly_contribution: payload.monthlyContribution,
+    p_consent_id: payload.consentId ?? null
+  });
   if (error) throw error;
   return data;
 }
