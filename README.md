@@ -21,3 +21,6 @@ Migrations live under `supabase/migrations`. The production schema includes inve
 The browser is never the authority for roles or governance transitions. Authorization is enforced by Supabase Auth, PostgreSQL RLS, and protected workflow functions.
 
 This repository does not claim regulatory approval, certification, or production compliance status.
+
+## Deployment verification
+Production deployments are sourced from the `main` branch through the connected Vercel project.
