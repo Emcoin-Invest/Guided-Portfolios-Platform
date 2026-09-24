@@ -83,3 +83,29 @@ export async function getMyStatements() {
   if (error) throw error;
   return data ?? [];
 }
+
+
+export async function getAdminData() {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  const [assets, actions, portfolios, requests, profiles] = await Promise.all([
+    supabase.from('assets').select('*').order('name'),
+    supabase.from('corporate_actions').select('*,assets(symbol,name)').order('ex_date',{ascending:true}),
+    supabase.from('portfolios').select('id,slug,name,active,portfolio_versions(id,version,band,target_return,volatility,risk_score,workflow_state,published_at,portfolio_holdings(id,symbol,name,asset_class,allocation,asset_id),portfolio_benchmarks(name,code))').order('name'),
+    supabase.from('investment_requests').select('id,user_id,amount,monthly_contribution,status,submitted_at,updated_at,portfolio_versions(version,band,portfolios(name))').order('submitted_at',{ascending:false}).limit(100),
+    supabase.from('profiles').select('id,display_name,role,created_at').order('created_at',{ascending:false}).limit(200)
+  ]);
+  for (const x of [assets,actions,portfolios,requests,profiles]) if (x.error) throw x.error;
+  return {assets:assets.data??[], actions:actions.data??[], portfolios:portfolios.data??[], requests:requests.data??[], profiles:profiles.data??[]};
+}
+
+export async function upsertAsset(v:any) {
+  const {data,error}=await supabase.rpc('admin_upsert_asset',{p_id:v.id??null,p_symbol:v.symbol,p_name:v.name,p_asset_class:v.asset_class,p_currency:v.currency,p_exchange:v.exchange||null,p_isin:v.isin||null,p_active:v.active,p_metadata:v.metadata||{}});
+  if(error) throw error; return data;
+}
+export async function deleteAsset(id:string) { const {error}=await supabase.rpc('admin_delete_asset',{p_id:id}); if(error) throw error; }
+export async function upsertCorporateAction(v:any) {
+  const {data,error}=await supabase.rpc('admin_upsert_corporate_action',{p_id:v.id??null,p_asset_id:v.asset_id,p_action_type:v.action_type,p_announcement_date:v.announcement_date||null,p_ex_date:v.ex_date||null,p_record_date:v.record_date||null,p_payment_date:v.payment_date||null,p_ratio:v.ratio?Number(v.ratio):null,p_cash_amount:v.cash_amount?Number(v.cash_amount):null,p_currency:v.currency||null,p_details:v.details||{}});
+  if(error) throw error; return data;
+}
+export async function setCorporateActionStatus(id:string,status:string) { const {error}=await supabase.rpc('admin_set_corporate_action_status',{p_id:id,p_status:status}); if(error) throw error; }
+export async function deleteCorporateAction(id:string) { const {error}=await supabase.rpc('admin_delete_corporate_action',{p_id:id}); if(error) throw error; }
