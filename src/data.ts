@@ -109,3 +109,34 @@ export async function upsertCorporateAction(v:any) {
 }
 export async function setCorporateActionStatus(id:string,status:string) { const {error}=await supabase.rpc('admin_set_corporate_action_status',{p_id:id,p_status:status}); if(error) throw error; }
 export async function deleteCorporateAction(id:string) { const {error}=await supabase.rpc('admin_delete_corporate_action',{p_id:id}); if(error) throw error; }
+
+export async function upsertPortfolioVersion(v:any) {
+  const {data,error}=await supabase.rpc('admin_upsert_portfolio_version',{
+    p_id:v.id??null,p_portfolio_id:v.portfolio_id,p_version:Number(v.version),
+    p_band:v.band,p_target_return:Number(v.target_return),p_volatility:Number(v.volatility),
+    p_risk_score:Number(v.risk_score),p_definition:v.definition||{}
+  });
+  if(error) throw error; return data;
+}
+
+export async function getMyValuations(portfolioVersionId?:string) {
+  const q=supabase.from('portfolio_valuations').select('*').order('valuation_date',{ascending:true});
+  if(portfolioVersionId) q.eq('portfolio_version_id',portfolioVersionId);
+  const {data,error}=await q;
+  if(error) throw error; return data??[];
+}
+
+export async function getMyDocuments() {
+  const {data,error}=await supabase.from('documents').select('*').order('created_at',{ascending:false});
+  if(error) throw error; return data??[];
+}
+
+export async function getMyNotifications() {
+  const {data,error}=await supabase.from('notifications').select('*').order('created_at',{ascending:false}).limit(50);
+  if(error) throw error; return data??[];
+}
+
+export async function markNotificationRead(id:string) {
+  const {error}=await supabase.from('notifications').update({read_at:new Date().toISOString()}).eq('id',id);
+  if(error) throw error;
+}
