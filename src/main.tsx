@@ -63,7 +63,11 @@ function App({session,onLogout}:{session:SessionState;onLogout:()=>void}){
  </div>
 }
 
-function Certificate({selected,initial,monthly,years,approved}:{selected:any;initial:number;monthly:number;years:number;approved:string}){\n const[busy,setBusy]=useState(false),[error,setError]=useState('');\n const generate=async()=>{setBusy(true);setError('');try{await generateInvestmentCertificate({portfolioVersionId:selected.id,amount:initial,monthlyContribution:monthly,horizonYears:years});window.location.reload()}catch(e:any){setError(e.message||'Certificate generation failed')}finally{setBusy(false)}};\n return <div className="dash-section certificate-card"><h3>📜 Investment Certificate</h3><p className="lede">The certificate is generated server-side, stored as an immutable PDF, and fingerprinted with SHA-256.</p>{error&&<div className="notice">{error}</div>}<button className="btn btn-primary" disabled={busy} onClick={generate}>{busy?'Generating secure PDF...':'Generate secure PDF certificate'}</button></div>\n}
+function Certificate({selected,initial,monthly,years,approved}:{selected:any;initial:number;monthly:number;years:number;approved:string}){
+ const[busy,setBusy]=useState(false),[error,setError]=useState('');
+ const generate=async()=>{setBusy(true);setError('');try{await generateInvestmentCertificate({portfolioVersionId:selected.id,amount:initial,monthlyContribution:monthly,horizonYears:years});window.location.reload()}catch(e:any){setError(e.message||'Certificate generation failed')}finally{setBusy(false)}};
+ return <div className="dash-section certificate-card"><h3>📜 Investment Certificate</h3><p className="lede">The certificate is generated server-side, stored as an immutable PDF, and fingerprinted with SHA-256.</p>{error&&<div className="notice">{error}</div>}<button className="btn btn-primary" disabled={busy} onClick={generate}>{busy?'Generating secure PDF...':'Generate secure PDF certificate'}</button></div>
+}
 function Governance(){
  const[tab,setTab]=useState<'overview'|'portfolios'|'versions'|'assets'|'actions'|'clients'|'valuation'>('overview'); const[data,setData]=useState<any>({assets:[],actions:[],portfolios:[],requests:[],profiles:[]}); const[error,setError]=useState(''); const[busy,setBusy]=useState(false);
  const[asset,setAsset]=useState<any>({symbol:'',name:'',asset_class:'Equity',currency:'AED',exchange:'',isin:'',active:true});
